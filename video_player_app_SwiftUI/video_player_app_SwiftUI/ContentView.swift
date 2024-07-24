@@ -11,24 +11,31 @@ import AVKit
 struct ContentView: View {
     @StateObject var viewModel = VideoViewModel()
     @State private var selectedItem: Category? = nil
+    @State private var currentVideoIndex: Int = 0
+    @State private var player: AVPlayer = AVPlayer()
 
     var body: some View {
         NavigationView {
             VStack {
                 ListTopView()
-    
                 
-                ListCategoriesView(items: viewModel.customItems, selectedItem: $selectedItem)
-                    .onAppear {
-                        selectedItem = viewModel.customItems.first
-                        if let firstItem = viewModel.customItems.first {
-                            viewModel.fetchVideos(query: firstItem.title)
-                        }
+                ListCategoriesView(
+                    items: viewModel.customItems,
+                    selectedItem: $selectedItem,
+                    currentVideoIndex: $currentVideoIndex,
+                    player: $player,
+                    viewModel: viewModel
+                )
+                .onAppear {
+                    selectedItem = viewModel.customItems.first
+                    if let firstItem = viewModel.customItems.first {
+                        viewModel.fetchVideos(query: firstItem.title)
                     }
-                    .padding(.vertical)
+                }
+                .padding(.vertical)
 
                 List(viewModel.videos) { video in
-                    NavigationLink(destination: VideoPlayerView(video: video)) {
+                    NavigationLink(destination: VideoPlayerView(videos: viewModel.videos, currentVideoIndex: currentVideoIndex)) {
                         ListContentView(
                             title: video.user,
                             subtitle: video.tags,

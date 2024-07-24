@@ -12,7 +12,7 @@ struct OverlayButtonsView: View {
     @State private var showSpeedOptions = false
     @Binding var selectedSpeed: Float
     @Binding var isLandscape: Bool
-    @State private var offsetValue: CGFloat = -240
+    @State private var offsetValue: CGFloat = -310
     @State private var isCollapsed: Bool = false
     var player: AVPlayer
 
@@ -30,7 +30,7 @@ struct OverlayButtonsView: View {
                         .clipShape(Circle())
                         .foregroundColor(.white)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
 
                 GeometryReader { geometry in
                     ZStack(alignment: .top) {
@@ -48,7 +48,7 @@ struct OverlayButtonsView: View {
                                 .foregroundColor(.white)
                         }
                         .background(Color.clear)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 60, height: 60)
 
                         if showSpeedOptions {
                             VStack(spacing: 10) {
@@ -98,7 +98,7 @@ struct OverlayButtonsView: View {
                         }
                     }
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
 
                 Button(action: {
                     isLandscape.toggle()
@@ -110,7 +110,7 @@ struct OverlayButtonsView: View {
                         .clipShape(Circle())
                         .foregroundColor(.white)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
                 .background(
                     OrientationChanger(orientation: isLandscape ? .landscapeRight : .portrait)
                 )
@@ -138,11 +138,11 @@ struct OverlayButtonsView: View {
                         .clipShape(Circle())
                         .foregroundColor(.white)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
                 
                 Button(action: {
                     withAnimation {
-                        offsetValue = offsetValue == 0 ? -230 : 0
+                        offsetValue = offsetValue == 0 ? -310 : 0
                         isCollapsed.toggle()
                     }
                 }) {
@@ -153,7 +153,7 @@ struct OverlayButtonsView: View {
                         .clipShape(Circle())
                         .foregroundColor(.white)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 30, height: 30)
                 Spacer()
             }
             .offset(x: offsetValue)

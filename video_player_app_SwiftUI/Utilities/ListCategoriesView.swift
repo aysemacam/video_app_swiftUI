@@ -4,11 +4,17 @@
 //
 //  Created by Aysema Çam on 23.07.2024.
 //
+import SwiftUI
+import AVKit
 
 import SwiftUI
+
 struct ListCategoriesView: View {
     let items: [Category]
     @Binding var selectedItem: Category?
+    @Binding var currentVideoIndex: Int
+    @Binding var player: AVPlayer
+    var viewModel: VideoViewModel
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -26,6 +32,14 @@ struct ListCategoriesView: View {
                     .cornerRadius(7)
                     .onTapGesture {
                         selectedItem = item
+                        if let index = viewModel.customItems.firstIndex(where: { $0.id == item.id }) {
+                            currentVideoIndex = index
+                            viewModel.fetchVideos(query: item.title)
+                            if let videoUrl = viewModel.videos.first?.videos.small.url {
+                                player.replaceCurrentItem(with: AVPlayerItem(url: URL(string: videoUrl)!))
+                                player.play()
+                            }
+                        }
                     }
                 }
             }

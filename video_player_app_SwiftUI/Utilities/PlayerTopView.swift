@@ -12,6 +12,7 @@ struct PlayerTopView: View {
     let title: String
 
     var body: some View {
+        Spacer()
         HStack {
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
@@ -69,7 +70,9 @@ struct PlayerTopView: View {
             .foregroundColor(.white)
             .frame(width: 37, height: 37)
         }
+      
     }
+    
 }
 
 #Preview {

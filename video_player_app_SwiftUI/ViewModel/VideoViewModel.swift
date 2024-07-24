@@ -14,9 +14,8 @@ class VideoViewModel: ObservableObject {
         Category(title: "Music", imageName: "music.note"),
         Category(title: "Nature", imageName: "tree.fill"),
         Category(title: "Animals", imageName: "cat.fill"),
-        Category(title: "Moview", imageName: "movieclapper.fill"),
+        Category(title: "Movies", imageName: "movieclapper.fill"),
         Category(title: "Snow", imageName: "snowflake")
-
     ]
 
     private let apiKey = "45070802-922c9dbab911a14e7d81c3b6b"
@@ -40,6 +39,3 @@ class VideoViewModel: ObservableObject {
         }.resume()
     }
 }
-
-
-

@@ -9,7 +9,7 @@ import SwiftUI
 import AVKit
 
 struct VideoPlayerView: View {
-    let video: Video
+    let videos: [Video]
     @State private var player: AVPlayer
     @State private var isLandscape: Bool = false
     @State private var isPlaying: Bool = true
@@ -18,16 +18,18 @@ struct VideoPlayerView: View {
     @State private var duration: Double = 0
     @State private var selectedSpeed: Float = 1
     @State private var showUnlockButton: Bool = false
+    @State private var currentVideoIndex: Int
 
-    init(video: Video) {
-        self.video = video
-        self._player = State(initialValue: AVPlayer(url: URL(string: video.videos.small.url)!))
+    init(videos: [Video], currentVideoIndex: Int = 0) {
+        self.videos = videos
+        self._currentVideoIndex = State(initialValue: currentVideoIndex)
+        self._player = State(initialValue: AVPlayer(url: URL(string: videos[currentVideoIndex].videos.small.url)!))
     }
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                VideoPlayer(player: player)
+                CustomVideoPlayer(player: player, isLandscape: isLandscape)
                     .onAppear {
                         player.play()
                         player.rate = selectedSpeed
@@ -38,44 +40,55 @@ struct VideoPlayerView: View {
                         player.pause()
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
-                    .edgesIgnoringSafeArea(isLandscape ? .all : .horizontal)
-                
+                    .ignoresSafeArea()
+           
+                    
+
                 Color.black.opacity(0.01)
                     .contentShape(Rectangle())
 
                 if !isLocked {
                     VStack {
-                        PlayerTopView(title: video.user)
-                            .padding(15)
-                            .frame(height: 50)
+                        PlayerTopView(title: videos[currentVideoIndex].user)
+                            .padding(.horizontal, 15)
+                        
+                            .frame(height: 30)
                             .background(Color.clear)
                             .zIndex(1)
 
-                        Spacer()
-                        
                         OverlayButtonsView(selectedSpeed: $selectedSpeed, isLandscape: $isLandscape, player: player)
                             .background(Color.clear)
+                            .frame(height: 40)
                             .zIndex(1)
+                        Spacer()
 
                         VStack {
-                            CustomSliderView(currentTime: $currentTime, duration: $duration)
+                            CustomSliderView(currentTime: $currentTime, duration: $duration) { newTime in
+                                currentTime = newTime
+                                let seekTime = CMTime(seconds: currentTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+                                player.seek(to: seekTime)
+                            }
                                 .padding(.horizontal)
                                 .frame(height: 30)
                                 .background(Color.clear)
-                            
+                              
+
                             HStack {
                                 LockButton(isLocked: $isLocked)
-                                PreviousButton(player: player)
+                                PreviousButton(currentVideoIndex: $currentVideoIndex, videos: videos, player: $player, addPeriodicTimeObserver: addPeriodicTimeObserver, addBoundaryTimeObserver: addBoundaryTimeObserver, isPlaying: $isPlaying)
                                 PlayPauseButton(isPlaying: $isPlaying, player: player, selectedSpeed: $selectedSpeed)
-                                NextButton(player: player)
+                                NextButton(currentVideoIndex: $currentVideoIndex, videos: videos, index: selectedSpeed, player: $player, addPeriodicTimeObserver: addPeriodicTimeObserver, addBoundaryTimeObserver: addBoundaryTimeObserver, isPlaying: $isPlaying)
                                 EmptyButton()
                             }
                             .frame(height: 30)
                             .background(Color.clear)
                         }
                         .padding(.vertical)
-                        .zIndex(1)
+                        .frame(maxWidth: .infinity)
                     }
+                    .frame(maxHeight: .infinity)
+                    .background(Color.clear)
+                    .ignoresSafeArea()
                 }
 
                 if showUnlockButton {
@@ -105,7 +118,7 @@ struct VideoPlayerView: View {
                             }
                         }
                     }
-                    .zIndex(2)
+                    .zIndex(1)
                 }
             }
             .contentShape(Rectangle())
@@ -123,6 +136,7 @@ struct VideoPlayerView: View {
         .navigationTitle("")
         .navigationBarHidden(true)
         .background(Color.black)
+        .ignoresSafeArea()
     }
 
     private func addPeriodicTimeObserver() {
@@ -141,6 +155,34 @@ struct VideoPlayerView: View {
             self.player.seek(to: CMTime.zero)
             self.currentTime = 0
             self.player.pause()
+        }
+    }
+}
+
+struct CustomVideoPlayer: UIViewControllerRepresentable {
+    var player: AVPlayer
+    var isLandscape: Bool
+
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        controller.player = player
+        controller.showsPlaybackControls = false
+        controller.videoGravity = isLandscape ? .resizeAspectFill : .resizeAspect
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        uiViewController.videoGravity = isLandscape ? .resizeAspectFill : .resizeAspect
+        if isLandscape {
+            DispatchQueue.main.async {
+                uiViewController.view.transform = .identity
+                uiViewController.view.frame = UIScreen.main.bounds
+            }
+        } else {
+            DispatchQueue.main.async {
+                uiViewController.view.transform = .identity
+                uiViewController.view.frame = UIScreen.main.bounds
+            }
         }
     }
 }
